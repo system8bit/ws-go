@@ -1,0 +1,27 @@
+# Build outputs
+ws-go
+framecheck
+testrunner
+*.exe
+
+# macOS
+.DS_Store
+
+# Save files
+*.sav
+*.state
+
+# Test ROM builds
+test_roms/WSCpuTest/*.wsc
+test_roms/WSCpuTest/*.lst
+test_roms/WSHWTest/*.wsc
+test_roms/WSHWTest/*.lst
+test_roms/WSTimingTest/*.ws
+test_roms/WSTimingTest/*.lst
+
+# IDE
+.idea/
+.vscode/
+
+# Temp
+/tmp/
