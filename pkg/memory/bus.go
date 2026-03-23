@@ -109,18 +109,12 @@ func (b *Bus) ReadLinear(addr uint32) byte {
 		}
 		return 0xFF
 
-	// 0x40000-0xEFFFF: ROM linear area
-	case addr < 0xF0000:
+	// 0x40000-0xFFFFF: ROM linear area (Mednafen-compatible)
+	// bank 4..F map to ROMLinearBank+0 .. ROMLinearBank+11
+	default:
 		if b.CartRead != nil {
 			bank := int(b.ROMLinearBank) + int((addr-0x40000)>>16)
 			return b.CartRead(bank, uint16(addr&0xFFFF))
-		}
-		return 0xFF
-
-	// 0xF0000-0xFFFFF: ROM last bank (always last 64KB of ROM)
-	default:
-		if b.CartRead != nil {
-			return b.CartRead(ROMLastBank, uint16(addr&0xFFFF))
 		}
 		return 0xFF
 	}

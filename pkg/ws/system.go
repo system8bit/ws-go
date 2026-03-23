@@ -48,6 +48,18 @@ func New(cartridge *cart.Cartridge) *System {
 	bus.CartReadSRAM = cartridge.ReadSRAM
 	bus.CartWriteSRAM = cartridge.WriteSRAM
 
+	// BIOS stub: set ROMLinearBank so that 0xFxxxx (bank F in Mednafen's model)
+	// maps to the last ROM bank. Mednafen maps bank F to ROMLinearBank+11, so:
+	//   ROMLinearBank = numBanks - 12
+	// This ensures commercial games that rely on the real WonderSwan BIOS
+	// initializing the bank registers will find their IPL code at 0xFFFF0.
+	numBanks := len(cartridge.ROM) / cart.BankSize
+	if numBanks >= 12 {
+		biosLinearBank := byte(numBanks - 12)
+		bus.ROMLinearBank = biosLinearBank
+		bus.IOPorts[memory.PortROMLinearBank] = biosLinearBank
+	}
+
 	dmaUnit := &DMA{}
 	sndDMAUnit := &SoundDMA{}
 	timerUnit := &Timer{}

@@ -1,7 +1,7 @@
 # ws-go — WonderSwan Emulator in Go
 
 ## Project Overview
-WonderSwan (mono/Color) emulator using Go + Ebitengine. Bad Apple (WS mono) の映像がクリーンなシルエットとして表示される。ブロックノイズは修正済み（mono mode での bank bit 無視）。
+WonderSwan (mono/Color) emulator using Go + Ebitengine. Bad Apple (WS mono) の映像がクリーンなシルエットとして表示される。ブロックノイズは修正済み（mono mode での bank bit 無視）。商業ゲーム（例: `gunpei.ws`）も対応済み（ROM バンクマッピングを Mednafen 準拠に修正、BIOS スタブ実装）。
 
 ## Build & Run
 ```bash
