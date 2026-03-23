@@ -53,7 +53,7 @@ func main() {
 	// Audio adaptive rate control handles the sample-rate mismatch.
 	ebiten.SetTPS(ebiten.SyncWithFPS)
 
-	w, h := frontend.WindowSize()
+	w, h := frontend.WindowSize(frontend.RotationNormal)
 	ebiten.SetWindowSize(w, h)
 	ebiten.SetWindowTitle("ws-go — WonderSwan Emulator")
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)

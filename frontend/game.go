@@ -2,6 +2,7 @@ package frontend
 
 import (
 	"fmt"
+	"math"
 	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -22,6 +23,7 @@ type Game struct {
 	System      *ws.System
 	ROMPath     string  // used to derive save state path
 	accumulator float64 // seconds of emulation time to catch up
+	Rotation    int     // RotationNormal or RotationLeft90
 }
 
 // NewGame creates a new Game that drives the given System each frame.
@@ -32,7 +34,7 @@ func NewGame(sys *ws.System) *Game {
 // Update polls input and runs enough emulation frames to keep pace with
 // wall-clock time. Called once per display frame (SyncWithFPS mode).
 func (g *Game) Update() error {
-	// F1 = reset, F2 = save state, F3 = load state
+	// F1 = reset, F2 = save state, F3 = load state, F4 = toggle portrait/landscape
 	if inpututil.IsKeyJustPressed(ebiten.KeyF1) {
 		g.System.Reset()
 		g.accumulator = 0
@@ -53,8 +55,19 @@ func (g *Game) Update() error {
 			fmt.Printf("State loaded from %s\n", path)
 		}
 	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyF4) {
+		if g.Rotation == RotationNormal {
+			g.Rotation = RotationLeft90
+			fmt.Println("Portrait mode (rotated 90° CCW)")
+		} else {
+			g.Rotation = RotationNormal
+			fmt.Println("Landscape mode")
+		}
+		w, h := WindowSize(g.Rotation)
+		ebiten.SetWindowSize(w, h)
+	}
 
-	UpdateInput(g.System.Input)
+	UpdateInput(g.System.Input, g.Rotation)
 
 	// Add one display-frame's worth of time.
 	// TPS = SyncWithFPS, so Update is called at display refresh rate.
@@ -77,12 +90,28 @@ func (g *Game) Update() error {
 
 // Draw copies the PPU display buffer to the Ebitengine screen.
 // Uses DisplayBuffer (not Framebuffer) to avoid showing partially-rendered frames.
+// In portrait mode (RotationLeft90), the image is rotated 90° counter-clockwise.
 func (g *Game) Draw(screen *ebiten.Image) {
-	screen.WritePixels(g.System.PPU.DisplayBuffer[:])
+	src := ebiten.NewImage(ppu.ScreenWidth, ppu.ScreenHeight)
+	src.WritePixels(g.System.PPU.DisplayBuffer[:])
+
+	op := &ebiten.DrawImageOptions{}
+	if g.Rotation == RotationLeft90 {
+		// Rotate 90° CCW around the image centre, then translate into view.
+		// Rotation centre: (W/2, H/2). After -90° the image is H wide × W tall.
+		op.GeoM.Translate(-float64(ppu.ScreenWidth)/2, -float64(ppu.ScreenHeight)/2)
+		op.GeoM.Rotate(-math.Pi / 2)
+		op.GeoM.Translate(float64(ppu.ScreenHeight)/2, float64(ppu.ScreenWidth)/2)
+	}
+	screen.DrawImage(src, op)
 }
 
-// Layout returns the native WonderSwan resolution.
+// Layout returns the logical (native) resolution for Ebitengine.
+// In portrait mode the axes are swapped so the rotated image fills the window.
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
+	if g.Rotation == RotationLeft90 {
+		return ppu.ScreenHeight, ppu.ScreenWidth
+	}
 	return ppu.ScreenWidth, ppu.ScreenHeight
 }
 
@@ -94,3 +123,4 @@ func (g *Game) saveStatePath() string {
 	}
 	return path + ".state"
 }
+
