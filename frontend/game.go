@@ -24,17 +24,18 @@ type Game struct {
 	ROMPath     string  // used to derive save state path
 	accumulator float64 // seconds of emulation time to catch up
 	Rotation    int     // RotationNormal or RotationLeft90
+	ScaleIndex  int     // index into Scales (0=1x, 1=1.5x, 2=2x)
 }
 
 // NewGame creates a new Game that drives the given System each frame.
 func NewGame(sys *ws.System) *Game {
-	return &Game{System: sys}
+	return &Game{System: sys, ScaleIndex: DefaultScaleIndex}
 }
 
 // Update polls input and runs enough emulation frames to keep pace with
 // wall-clock time. Called once per display frame (SyncWithFPS mode).
 func (g *Game) Update() error {
-	// F1 = reset, F2 = save state, F3 = load state, F4 = toggle portrait/landscape
+	// F1 = reset, F2 = save state, F3 = load state, F4 = toggle portrait/landscape, F5 = cycle scale
 	if inpututil.IsKeyJustPressed(ebiten.KeyF1) {
 		g.System.Reset()
 		g.accumulator = 0
@@ -63,8 +64,15 @@ func (g *Game) Update() error {
 			g.Rotation = RotationNormal
 			fmt.Println("Landscape mode")
 		}
-		w, h := WindowSize(g.Rotation)
+		w, h := WindowSize(g.Rotation, Scales[g.ScaleIndex])
 		ebiten.SetWindowSize(w, h)
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyF5) {
+		g.ScaleIndex = (g.ScaleIndex + 1) % len(Scales)
+		scale := Scales[g.ScaleIndex]
+		w, h := WindowSize(g.Rotation, scale)
+		ebiten.SetWindowSize(w, h)
+		fmt.Printf("Scale: %.1fx\n", scale)
 	}
 
 	UpdateInput(g.System.Input, g.Rotation)

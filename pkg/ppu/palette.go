@@ -70,11 +70,11 @@ func (p *PPU) GetColorFromPalette(paletteIdx, colorIdx int) (r, g, b byte) {
 	hi := uint16(iram[addr+1])
 	rgb := lo | (hi << 8)
 
-	// 12-bit RGB: bits 0-3 red, bits 4-7 green, bits 8-11 blue
-	// (WSC format: xxxx BBBB GGGG RRRR, Mednafen-verified)
-	red4 := byte(rgb & 0x0F)
+	// 12-bit color: WSC format is xxxx RRRR GGGG BBBB
+	// bits 0-3 = blue, bits 4-7 = green, bits 8-11 = red
+	blue4 := byte(rgb & 0x0F)
 	green4 := byte((rgb >> 4) & 0x0F)
-	blue4 := byte((rgb >> 8) & 0x0F)
+	red4 := byte((rgb >> 8) & 0x0F)
 
 	// Expand 4-bit to 8-bit: multiply by 17 (0x0 -> 0x00, 0xF -> 0xFF)
 	return red4 * 17, green4 * 17, blue4 * 17

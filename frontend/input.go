@@ -22,31 +22,22 @@ var DefaultMapping = []KeyMapping{
 	{ebiten.KeyD, input.ButtonY2},
 	{ebiten.KeyS, input.ButtonY3},
 	{ebiten.KeyA, input.ButtonY4},
-	{ebiten.KeyZ, input.ButtonB},
-	{ebiten.KeyX, input.ButtonA},
+	{ebiten.KeyZ, input.ButtonA},
+	{ebiten.KeyX, input.ButtonB},
 	{ebiten.KeyEnter, input.ButtonStart},
 }
 
 // VerticalMapping provides the keyboard-to-button mapping for portrait mode (rotated 90° CCW).
-// When the screen is rotated left 90°, the physical d-pad directions shift:
-//
-//	Physical ↑ → WS Left  (X4)
-//	Physical → → WS Up    (X1)
-//	Physical ↓ → WS Right (X2)
-//	Physical ← → WS Down  (X3)
-//
-// Same rotation applies to the Y pad (WASD).
+// In portrait mode:
+//   - Arrow keys map to the Y pad (Up=Y2, Left=Y1, Right=Y3, Down=Y4)
+//   - X pad X3 → A button (key X), X pad X4 → B button (key Z)
 var VerticalMapping = []KeyMapping{
-	{ebiten.KeyArrowUp, input.ButtonX4},
-	{ebiten.KeyArrowRight, input.ButtonX1},
-	{ebiten.KeyArrowDown, input.ButtonX2},
-	{ebiten.KeyArrowLeft, input.ButtonX3},
-	{ebiten.KeyW, input.ButtonY4},
-	{ebiten.KeyD, input.ButtonY1},
-	{ebiten.KeyS, input.ButtonY2},
-	{ebiten.KeyA, input.ButtonY3},
-	{ebiten.KeyZ, input.ButtonB},
-	{ebiten.KeyX, input.ButtonA},
+	{ebiten.KeyArrowUp, input.ButtonY2},
+	{ebiten.KeyArrowRight, input.ButtonY3},
+	{ebiten.KeyArrowDown, input.ButtonY4},
+	{ebiten.KeyArrowLeft, input.ButtonY1},
+	{ebiten.KeyZ, input.ButtonX3},
+	{ebiten.KeyX, input.ButtonX4},
 	{ebiten.KeyEnter, input.ButtonStart},
 }
 
